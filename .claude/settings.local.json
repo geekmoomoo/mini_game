@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(start index.html)",
+      "Bash(start \"\" \"c:\\Users\\GENIE\\project\\mini_game\\index.html\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
