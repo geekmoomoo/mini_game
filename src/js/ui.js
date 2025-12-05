@@ -821,22 +821,102 @@ function handleSlotClick(index) {
 }
 
 /**
- * 토스트 메시지
+ * 토스트 메시지 (개선된 버전)
+ * @param {string} message - 표시할 메시지
+ * @param {string} type - 'success', 'error', 'warning', 또는 기본값
+ * @param {number} duration - 표시 시간 (ms)
  */
-function showToast(message) {
+function showToast(message, type = '', duration = 2000) {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
 
     const toast = document.createElement('div');
-    toast.className = 'toast';
+    toast.className = `toast ${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
+
+    // 햅틱 피드백 (지원되는 경우)
+    if (navigator.vibrate) {
+        if (type === 'error') {
+            navigator.vibrate([50, 50, 50]); // 에러는 진동 3번
+        } else if (type === 'success') {
+            navigator.vibrate(30); // 성공은 짧은 진동
+        }
+    }
 
     setTimeout(() => toast.classList.add('show'), 10);
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
-    }, 2000);
+    }, duration);
+}
+
+/**
+ * 햅틱 피드백
+ */
+function hapticFeedback(type = 'light') {
+    if (!navigator.vibrate) return;
+
+    switch (type) {
+        case 'light':
+            navigator.vibrate(10);
+            break;
+        case 'medium':
+            navigator.vibrate(30);
+            break;
+        case 'heavy':
+            navigator.vibrate(50);
+            break;
+        case 'success':
+            navigator.vibrate([20, 50, 20]);
+            break;
+        case 'error':
+            navigator.vibrate([50, 30, 50, 30, 50]);
+            break;
+        case 'warning':
+            navigator.vibrate([30, 50, 30]);
+            break;
+    }
+}
+
+/**
+ * UI 피드백 효과
+ */
+function addFeedback(element, type = 'success') {
+    if (!element) return;
+
+    element.classList.remove('success-feedback', 'error-feedback', 'vibrate');
+
+    switch (type) {
+        case 'success':
+            element.classList.add('success-feedback');
+            hapticFeedback('success');
+            break;
+        case 'error':
+            element.classList.add('error-feedback');
+            hapticFeedback('error');
+            break;
+        case 'vibrate':
+            element.classList.add('vibrate');
+            hapticFeedback('light');
+            break;
+    }
+
+    setTimeout(() => {
+        element.classList.remove('success-feedback', 'error-feedback', 'vibrate');
+    }, 600);
+}
+
+/**
+ * 리소스 변경 애니메이션
+ */
+function animateResourceChange(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.classList.remove('reward-pop');
+        void element.offsetWidth; // 리플로우 강제
+        element.classList.add('reward-pop');
+    }
 }
 
 /**

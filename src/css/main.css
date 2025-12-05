@@ -1761,3 +1761,318 @@ body {
         bottom: 8px;
     }
 }
+
+/* ==================== Mobile UX Enhancements ==================== */
+
+/* 터치 피드백 - 버튼 누름 효과 */
+.action-btn:active,
+.control-btn:active,
+.skill-btn:active,
+.shop-buy-btn:active,
+.side-menu-item:active,
+.hero-tab:active {
+    transform: scale(0.95);
+    filter: brightness(0.9);
+}
+
+/* 터치 영역 확대 */
+@media (hover: none) and (pointer: coarse) {
+    /* 모바일 터치 디바이스 전용 */
+    .action-btn {
+        min-height: 48px;
+        font-size: var(--font-md);
+    }
+
+    .control-btn {
+        min-height: 40px;
+        min-width: 44px;
+    }
+
+    .skill-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .hero-tab {
+        min-height: 44px;
+    }
+
+    .side-menu-item {
+        min-height: 52px;
+        padding: var(--space-md) var(--space-lg);
+    }
+
+    /* 모달 버튼 확대 */
+    .shop-buy-btn,
+    .open-box-btn,
+    .quest-claim-btn {
+        min-height: 44px;
+        padding: var(--space-sm) var(--space-lg);
+    }
+
+    /* 닫기 버튼 확대 */
+    .close-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+
+    /* 슬롯 터치 영역 */
+    .grid-slot {
+        min-height: 60px;
+    }
+
+    /* 판매 버튼 확대 */
+    .sell-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 14px;
+        top: -8px;
+        right: -8px;
+    }
+}
+
+/* 진동 효과를 위한 애니메이션 */
+@keyframes vibrate {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+.vibrate {
+    animation: vibrate 0.1s ease-in-out;
+}
+
+/* 버튼 눌림 리플 효과 */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.4s, opacity 0.8s;
+}
+
+.ripple:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* 성공 피드백 */
+@keyframes successPulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.success-feedback {
+    animation: successPulse 0.6s ease-out;
+}
+
+/* 에러 피드백 */
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.error-feedback {
+    animation: errorShake 0.4s ease-out;
+}
+
+/* 골드/젬 획득 애니메이션 */
+@keyframes rewardPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #f59e0b; }
+    100% { transform: scale(1); }
+}
+
+.reward-pop {
+    animation: rewardPop 0.3s ease-out;
+}
+
+/* 스테이지 클리어 효과 */
+@keyframes stageClear {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.stage-clear {
+    animation: stageClear 0.5s ease-out;
+}
+
+/* 풀스크린 지원 */
+#game-container:-webkit-full-screen {
+    width: 100vw;
+    max-width: none;
+}
+
+#game-container:fullscreen {
+    width: 100vw;
+    max-width: none;
+}
+
+/* Safe area padding (노치 대응) */
+@supports (padding: max(0px)) {
+    #top-bar {
+        padding-top: max(var(--space-sm), env(safe-area-inset-top));
+        padding-left: max(var(--space-md), env(safe-area-inset-left));
+        padding-right: max(var(--space-md), env(safe-area-inset-right));
+    }
+
+    #bottom-bar {
+        padding-bottom: max(var(--space-sm), env(safe-area-inset-bottom));
+    }
+
+    .side-menu {
+        padding-top: max(var(--space-lg), env(safe-area-inset-top));
+    }
+}
+
+/* 가로 모드 대응 */
+@media (orientation: landscape) and (max-height: 500px) {
+    #game-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    #top-bar {
+        width: 100%;
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    #control-bar {
+        width: 100%;
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    #battle-area {
+        flex: 1;
+        min-width: 50%;
+        min-height: auto;
+        height: calc(100vh - 80px);
+    }
+
+    #hero-section {
+        flex: 1;
+        min-width: 50%;
+        max-width: 50%;
+        height: calc(100vh - 80px);
+        overflow-y: auto;
+    }
+
+    #merge-grid {
+        max-width: 160px;
+    }
+
+    .grid-slot {
+        min-height: 42px;
+    }
+
+    #skill-buttons {
+        bottom: 5px;
+        gap: 4px;
+    }
+
+    .skill-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* 토스트 메시지 개선 */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-full);
+    font-size: var(--font-sm);
+    font-weight: 500;
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    max-width: 90%;
+    text-align: center;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast.success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+}
+
+.toast.error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+}
+
+.toast.warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.95));
+}
+
+/* 스켈레톤 로딩 효과 */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+}
+
+/* 드래그 중 시각적 피드백 */
+.dragging {
+    opacity: 0.7;
+    transform: scale(1.1);
+    z-index: 100;
+    box-shadow: var(--shadow-xl);
+}
+
+.drop-target {
+    border-color: var(--accent-blue) !important;
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-style: solid !important;
+}
+
+/* 비활성화 상태 */
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(50%);
+}
+
+/* 빠른 접근성 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

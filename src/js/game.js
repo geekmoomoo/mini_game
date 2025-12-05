@@ -266,6 +266,9 @@ function setupEventListeners() {
 
     // 초기 배속 버튼 상태
     updateSpeedButtons();
+
+    // 스와이프 제스처 (히어로 탭 전환)
+    setupSwipeGestures();
 }
 
 /**
@@ -326,6 +329,93 @@ function confirmReset() {
         if (confirm('마지막 확인입니다.\n모든 진행 상황이 삭제됩니다.')) {
             resetGameData();
             location.reload();
+        }
+    }
+}
+
+/**
+ * 스와이프 제스처 설정
+ */
+function setupSwipeGestures() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    const heroSection = document.getElementById('hero-section');
+    if (!heroSection) return;
+
+    heroSection.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    heroSection.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // 수평 스와이프만 감지 (최소 50px 이동, 수직 이동은 30px 미만)
+        if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 30) {
+            const unlockedHeroes = getUnlockedHeroIds();
+            const currentIndex = unlockedHeroes.indexOf(RuntimeState.selectedHeroClass);
+
+            if (deltaX < 0) {
+                // 왼쪽 스와이프 -> 다음 히어로
+                const nextIndex = (currentIndex + 1) % unlockedHeroes.length;
+                selectHeroTab(unlockedHeroes[nextIndex]);
+                hapticFeedback('light');
+            } else {
+                // 오른쪽 스와이프 -> 이전 히어로
+                const prevIndex = (currentIndex - 1 + unlockedHeroes.length) % unlockedHeroes.length;
+                selectHeroTab(unlockedHeroes[prevIndex]);
+                hapticFeedback('light');
+            }
+        }
+    }
+
+    // 배틀 영역에서 더블 탭 = 스킬 사용
+    const battleArea = document.getElementById('battle-area');
+    if (battleArea) {
+        let lastTap = 0;
+        battleArea.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+
+            if (tapLength < 300 && tapLength > 0) {
+                // 더블 탭 감지 -> 첫 번째 사용 가능한 스킬 발동
+                const heroId = RuntimeState.selectedHeroClass;
+                if (heroId && !RuntimeState.skillCooldowns[heroId]) {
+                    useSkill(heroId);
+                    hapticFeedback('medium');
+                }
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        }, { passive: false });
+    }
+}
+
+/**
+ * 풀스크린 토글
+ */
+function toggleFullscreen() {
+    const container = document.getElementById('game-container');
+
+    if (!document.fullscreenElement) {
+        if (container.requestFullscreen) {
+            container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+            container.webkitRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
         }
     }
 }
