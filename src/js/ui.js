@@ -82,35 +82,61 @@ function drawArena(ctx) {
 }
 
 /**
- * 히어로 렌더링
+ * 히어로 렌더링 - 모던 스타일
  */
 function renderHeroes(ctx) {
-    // 화면 크기에 따른 히어로 크기 조절
     const minDim = Math.min(RuntimeState.canvasWidth, RuntimeState.canvasHeight);
-    const heroSize = Math.max(12, Math.min(20, minDim * 0.06));
-    const fontSize = Math.max(12, Math.min(20, minDim * 0.055));
+    const heroSize = Math.max(14, Math.min(24, minDim * 0.07));
+    const fontSize = Math.max(14, Math.min(22, minDim * 0.06));
+    const time = Date.now() / 1000;
 
     RuntimeState.heroInstances.forEach(hero => {
         const heroClass = hero.class;
+        const isSelected = RuntimeState.selectedHeroClass === hero.classId;
 
         // 공격 범위 표시 (선택된 히어로만)
-        if (RuntimeState.selectedHeroClass === hero.classId) {
-            // 동적 사거리 (화면 비율에 맞춤)
+        if (isSelected) {
             const scaledRange = hero.stats.range * (minDim / 400);
+            // 펄스 효과
+            const pulse = 1 + Math.sin(time * 3) * 0.05;
             ctx.beginPath();
-            ctx.arc(hero.x, hero.y, scaledRange, 0, Math.PI * 2);
-            ctx.strokeStyle = `${heroClass.color}40`;
-            ctx.lineWidth = 1;
+            ctx.arc(hero.x, hero.y, scaledRange * pulse, 0, Math.PI * 2);
+            ctx.strokeStyle = `${heroClass.color}30`;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
             ctx.stroke();
+            ctx.setLineDash([]);
         }
 
-        // 히어로 원
+        // 외곽 글로우 효과
+        const glowSize = heroSize + 6;
+        const gradient = ctx.createRadialGradient(
+            hero.x, hero.y, heroSize * 0.5,
+            hero.x, hero.y, glowSize
+        );
+        gradient.addColorStop(0, `${heroClass.color}60`);
+        gradient.addColorStop(1, `${heroClass.color}00`);
+        ctx.beginPath();
+        ctx.arc(hero.x, hero.y, glowSize, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // 히어로 베이스 (그라데이션)
+        const baseGrad = ctx.createRadialGradient(
+            hero.x - heroSize * 0.3, hero.y - heroSize * 0.3, 0,
+            hero.x, hero.y, heroSize
+        );
+        baseGrad.addColorStop(0, lightenColor(heroClass.color, 30));
+        baseGrad.addColorStop(1, heroClass.color);
+
         ctx.beginPath();
         ctx.arc(hero.x, hero.y, heroSize, 0, Math.PI * 2);
-        ctx.fillStyle = heroClass.color;
+        ctx.fillStyle = baseGrad;
         ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
+
+        // 테두리 (선택 시 강조)
+        ctx.strokeStyle = isSelected ? '#fff' : 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = isSelected ? 3 : 2;
         ctx.stroke();
 
         // 히어로 이모지
@@ -119,72 +145,203 @@ function renderHeroes(ctx) {
         ctx.textBaseline = 'middle';
         ctx.fillText(heroClass.emoji, hero.x, hero.y);
 
-        // 이름 태그
-        ctx.font = `${Math.max(8, fontSize * 0.5)}px Arial`;
+        // 이름 태그 (배경 포함)
+        if (isSelected) {
+            const nameWidth = ctx.measureText(heroClass.name).width + 8;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.roundRect(hero.x - nameWidth/2, hero.y + heroSize + 4, nameWidth, 14, 4);
+            ctx.fill();
+        }
+        ctx.font = `bold ${Math.max(9, fontSize * 0.45)}px Arial`;
         ctx.fillStyle = '#fff';
-        ctx.fillText(heroClass.name, hero.x, hero.y + heroSize + 10);
+        ctx.fillText(heroClass.name, hero.x, hero.y + heroSize + 12);
     });
 }
 
+// 색상 밝기 조절 헬퍼
+function lightenColor(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.min(255, (num >> 16) + amt);
+    const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+    const B = Math.min(255, (num & 0x0000FF) + amt);
+    return `rgb(${R},${G},${B})`;
+}
+
 /**
- * 적 렌더링
+ * 적 렌더링 - 모던 스타일
  */
 function renderEnemies(ctx) {
-    // 화면 크기에 따른 적 크기 조절
     const minDim = Math.min(RuntimeState.canvasWidth, RuntimeState.canvasHeight);
-    const sizeScale = Math.max(0.5, minDim / 400);
+    const sizeScale = Math.max(0.6, minDim / 400);
+    const time = Date.now() / 1000;
 
     RuntimeState.enemies.forEach(enemy => {
         const scaledSize = enemy.size * sizeScale;
-
-        // 적 원
-        ctx.beginPath();
-        ctx.arc(enemy.x, enemy.y, scaledSize, 0, Math.PI * 2);
-        ctx.fillStyle = enemy.color;
-        ctx.fill();
-
-        if (enemy.isBoss) {
-            ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        }
-
-        // 이모지
-        ctx.font = `${scaledSize}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(enemy.emoji, enemy.x, enemy.y);
-
-        // HP 바
-        const hpBarWidth = scaledSize * 2;
-        const hpBarHeight = Math.max(3, 4 * sizeScale);
         const hpPercent = enemy.hp / enemy.maxHp;
 
-        ctx.fillStyle = '#333';
-        ctx.fillRect(enemy.x - hpBarWidth / 2, enemy.y - scaledSize - 8, hpBarWidth, hpBarHeight);
+        // 보스 전용 효과
+        if (enemy.isBoss) {
+            // 보스 오라 (회전하는 링)
+            const auraSize = scaledSize + 12;
+            ctx.save();
+            ctx.translate(enemy.x, enemy.y);
+            ctx.rotate(time * 2);
 
-        ctx.fillStyle = enemy.isBoss ? '#ffd700' : '#4ecdc4';
-        ctx.fillRect(enemy.x - hpBarWidth / 2, enemy.y - scaledSize - 8, hpBarWidth * hpPercent, hpBarHeight);
+            // 외곽 점선 링
+            ctx.beginPath();
+            ctx.arc(0, 0, auraSize, 0, Math.PI * 2);
+            ctx.strokeStyle = '#ffd70080';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 내부 글로우
+            const bossGlow = ctx.createRadialGradient(0, 0, scaledSize * 0.5, 0, 0, auraSize);
+            bossGlow.addColorStop(0, `${enemy.color}40`);
+            bossGlow.addColorStop(0.7, '#ffd70020');
+            bossGlow.addColorStop(1, 'transparent');
+            ctx.beginPath();
+            ctx.arc(0, 0, auraSize, 0, Math.PI * 2);
+            ctx.fillStyle = bossGlow;
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // 일반 적 그림자
+        ctx.beginPath();
+        ctx.ellipse(enemy.x, enemy.y + scaledSize * 0.8, scaledSize * 0.7, scaledSize * 0.25, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fill();
+
+        // 적 몸체 (그라데이션)
+        const bodyGrad = ctx.createRadialGradient(
+            enemy.x - scaledSize * 0.3, enemy.y - scaledSize * 0.3, 0,
+            enemy.x, enemy.y, scaledSize
+        );
+        bodyGrad.addColorStop(0, lightenColor(enemy.color, 40));
+        bodyGrad.addColorStop(0.6, enemy.color);
+        bodyGrad.addColorStop(1, darkenColor(enemy.color, 20));
+
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, scaledSize, 0, Math.PI * 2);
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
+
+        // 테두리
+        ctx.strokeStyle = enemy.isBoss ? '#ffd700' : darkenColor(enemy.color, 30);
+        ctx.lineWidth = enemy.isBoss ? 3 : 1.5;
+        ctx.stroke();
+
+        // 피격 시 깜빡임 효과
+        if (enemy.hitFlash && enemy.hitFlash > 0) {
+            ctx.globalAlpha = enemy.hitFlash;
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        // 이모지 (살짝 위로)
+        ctx.font = `${scaledSize * 1.1}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(enemy.emoji, enemy.x, enemy.y - 2);
+
+        // HP 바 (모던 스타일)
+        const hpBarWidth = scaledSize * 2.2;
+        const hpBarHeight = enemy.isBoss ? 6 : 4;
+        const hpBarY = enemy.y - scaledSize - (enemy.isBoss ? 14 : 10);
+
+        // HP바 배경 (라운드)
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath();
+        ctx.roundRect(enemy.x - hpBarWidth/2, hpBarY, hpBarWidth, hpBarHeight, hpBarHeight/2);
+        ctx.fill();
+
+        // HP바 채우기 (그라데이션)
+        const hpGrad = ctx.createLinearGradient(
+            enemy.x - hpBarWidth/2, hpBarY,
+            enemy.x - hpBarWidth/2 + hpBarWidth * hpPercent, hpBarY
+        );
+        if (enemy.isBoss) {
+            hpGrad.addColorStop(0, '#ffd700');
+            hpGrad.addColorStop(1, '#ff8c00');
+        } else {
+            const hpColor = hpPercent > 0.5 ? '#4ecdc4' : hpPercent > 0.25 ? '#f39c12' : '#e74c3c';
+            hpGrad.addColorStop(0, lightenColor(hpColor, 20));
+            hpGrad.addColorStop(1, hpColor);
+        }
+
+        ctx.fillStyle = hpGrad;
+        ctx.beginPath();
+        ctx.roundRect(enemy.x - hpBarWidth/2, hpBarY, hpBarWidth * hpPercent, hpBarHeight, hpBarHeight/2);
+        ctx.fill();
+
+        // 보스 이름 표시
+        if (enemy.isBoss) {
+            ctx.font = 'bold 10px Arial';
+            ctx.fillStyle = '#ffd700';
+            ctx.fillText(enemy.name || 'BOSS', enemy.x, hpBarY - 6);
+        }
     });
 }
 
+// 색상 어둡게 헬퍼
+function darkenColor(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, (num >> 16) - amt);
+    const G = Math.max(0, ((num >> 8) & 0x00FF) - amt);
+    const B = Math.max(0, (num & 0x0000FF) - amt);
+    return `rgb(${R},${G},${B})`;
+}
+
 /**
- * 투사체 렌더링
+ * 투사체 렌더링 - 모던 스타일
  */
 function renderProjectiles(ctx) {
     RuntimeState.projectiles.forEach(proj => {
+        // 투사체 트레일 (더 길고 부드럽게)
+        const trailLength = 4;
+        for (let i = trailLength; i >= 0; i--) {
+            const alpha = (1 - i / trailLength) * 0.4;
+            const trailX = proj.x - proj.vx * 0.02 * i;
+            const trailY = proj.y - proj.vy * 0.02 * i;
+            const trailSize = proj.size * (1 - i * 0.15);
+
+            ctx.beginPath();
+            ctx.arc(trailX, trailY, trailSize, 0, Math.PI * 2);
+            ctx.fillStyle = `${proj.color}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
+            ctx.fill();
+        }
+
+        // 투사체 글로우
+        const glowGrad = ctx.createRadialGradient(
+            proj.x, proj.y, 0,
+            proj.x, proj.y, proj.size * 2
+        );
+        glowGrad.addColorStop(0, `${proj.color}80`);
+        glowGrad.addColorStop(1, `${proj.color}00`);
         ctx.beginPath();
-        ctx.arc(proj.x, proj.y, proj.size, 0, Math.PI * 2);
-        ctx.fillStyle = proj.color;
+        ctx.arc(proj.x, proj.y, proj.size * 2, 0, Math.PI * 2);
+        ctx.fillStyle = glowGrad;
         ctx.fill();
 
-        // 트레일 효과
+        // 투사체 메인 (그라데이션)
+        const projGrad = ctx.createRadialGradient(
+            proj.x - proj.size * 0.3, proj.y - proj.size * 0.3, 0,
+            proj.x, proj.y, proj.size
+        );
+        projGrad.addColorStop(0, '#fff');
+        projGrad.addColorStop(0.3, lightenColor(proj.color, 30));
+        projGrad.addColorStop(1, proj.color);
+
         ctx.beginPath();
-        ctx.moveTo(proj.x, proj.y);
-        ctx.lineTo(proj.x - proj.vx * 0.05, proj.y - proj.vy * 0.05);
-        ctx.strokeStyle = `${proj.color}80`;
-        ctx.lineWidth = proj.size * 0.5;
-        ctx.stroke();
+        ctx.arc(proj.x, proj.y, proj.size, 0, Math.PI * 2);
+        ctx.fillStyle = projGrad;
+        ctx.fill();
     });
 }
 

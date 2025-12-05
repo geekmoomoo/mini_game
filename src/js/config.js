@@ -160,21 +160,28 @@ const MERGE_ITEM_TYPES = [
     { id: 'life_gem', name: '생명의 보석', emoji: '❤️', statType: 'hp', baseValue: 10 },
 ];
 
-// 적 타입 정의
+// 적 타입 정의 (더 다양한 이모지와 색상)
 const ENEMY_TYPES = [
-    { id: 'slime', name: '슬라임', emoji: '🟢', hpMult: 1.0, speedMult: 1.0, color: '#2ecc71' },
-    { id: 'goblin', name: '고블린', emoji: '👺', hpMult: 1.2, speedMult: 1.1, color: '#e67e22' },
-    { id: 'skeleton', name: '스켈레톤', emoji: '💀', hpMult: 0.8, speedMult: 1.3, color: '#ecf0f1' },
-    { id: 'orc', name: '오크', emoji: '👹', hpMult: 1.5, speedMult: 0.8, color: '#27ae60' },
-    { id: 'demon', name: '데몬', emoji: '😈', hpMult: 2.0, speedMult: 0.9, color: '#8e44ad' },
+    { id: 'slime', name: '슬라임', emoji: '🫧', hpMult: 1.0, speedMult: 1.0, color: '#4ade80' },
+    { id: 'bat', name: '박쥐', emoji: '🦇', hpMult: 0.7, speedMult: 1.4, color: '#6366f1' },
+    { id: 'goblin', name: '고블린', emoji: '👺', hpMult: 1.2, speedMult: 1.1, color: '#fb923c' },
+    { id: 'skeleton', name: '스켈레톤', emoji: '💀', hpMult: 0.8, speedMult: 1.3, color: '#e2e8f0' },
+    { id: 'ghost', name: '유령', emoji: '👻', hpMult: 0.9, speedMult: 1.2, color: '#a78bfa' },
+    { id: 'spider', name: '거미', emoji: '🕷️', hpMult: 1.0, speedMult: 1.5, color: '#1e293b' },
+    { id: 'orc', name: '오크', emoji: '👹', hpMult: 1.5, speedMult: 0.8, color: '#22c55e' },
+    { id: 'wolf', name: '늑대', emoji: '🐺', hpMult: 1.1, speedMult: 1.3, color: '#64748b' },
+    { id: 'demon', name: '데몬', emoji: '😈', hpMult: 2.0, speedMult: 0.9, color: '#dc2626' },
+    { id: 'elemental', name: '정령', emoji: '🔥', hpMult: 1.8, speedMult: 1.0, color: '#f97316' },
 ];
 
-// 보스 타입 정의
+// 보스 타입 정의 (더 임팩트 있는 디자인)
 const BOSS_TYPES = [
-    { id: 'boss_slime', name: '킹 슬라임', emoji: '👑', color: '#2ecc71', specialAttack: 'split' },
-    { id: 'boss_orc', name: '오크 대장', emoji: '🔱', color: '#c0392b', specialAttack: 'rage' },
-    { id: 'boss_dragon', name: '드래곤', emoji: '🐉', color: '#9b59b6', specialAttack: 'breath' },
-    { id: 'boss_demon', name: '마왕', emoji: '👿', color: '#2c3e50', specialAttack: 'summon' },
+    { id: 'boss_slime', name: '킹 슬라임', emoji: '👑', color: '#22d3ee', specialAttack: 'split' },
+    { id: 'boss_spider', name: '거대 거미', emoji: '🕸️', color: '#1e293b', specialAttack: 'web' },
+    { id: 'boss_orc', name: '오크 대장', emoji: '⚔️', color: '#ef4444', specialAttack: 'rage' },
+    { id: 'boss_lich', name: '리치', emoji: '☠️', color: '#a855f7', specialAttack: 'summon' },
+    { id: 'boss_dragon', name: '드래곤', emoji: '🐲', color: '#f59e0b', specialAttack: 'breath' },
+    { id: 'boss_demon', name: '마왕', emoji: '👿', color: '#7c3aed', specialAttack: 'chaos' },
 ];
 
 // 업그레이드 정의

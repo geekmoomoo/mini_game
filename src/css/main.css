@@ -731,6 +731,31 @@ body {
     transform: scale(1.15);
 }
 
+/* 롱프레스 시각적 피드백 */
+.sell-btn.pressing {
+    opacity: 1;
+    transform: scale(0.9);
+    background: var(--gradient-warning);
+    animation: sell-pulse 0.5s ease-out;
+}
+
+@keyframes sell-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    100% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+}
+
+/* 모바일에서 판매 버튼 항상 표시 */
+@media (max-width: 768px) {
+    .sell-btn {
+        opacity: 0.8;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        top: -5px;
+        right: -5px;
+    }
+}
+
 /* Merge Item Level Colors */
 .merge-item-lv1 { background: var(--gradient-info); }
 .merge-item-lv2 { background: var(--gradient-success); }
